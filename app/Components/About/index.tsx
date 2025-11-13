@@ -123,16 +123,6 @@ export default function About() {
     };
   }, []);
 
-  // Split text into words and wrap each in a span with data attribute
-  const renderWords = (text: string) => {
-    return text.split(" ").map((word, index, array) => (
-      <span key={index} className={styles.word}>
-        {word}
-        {index < array.length - 1 ? " " : ""}
-      </span>
-    ));
-  };
-
   return (
     <section className={styles.aboutSection} ref={sectionRef}>
       <div className={styles.container}>
@@ -152,16 +142,16 @@ export default function About() {
           {/* Paragraphs with word-by-word animation */}
           <div className={styles.textContainer} ref={textContainerRef}>
             <p className={styles.paragraph}>
-              Hey, I'm Mahadevan Reji — most people call me Kichu.
+              Hey, I&apos;m Mahadevan Reji — most people call me Kichu.
             </p>
             <p className={styles.paragraph}>
-              I'm a Full Stack Developer who builds systems that are precise and alive. I like structure, but I also like when things move and feel designed.
+              I&apos;m a Full Stack Developer who builds systems that are precise and alive. I like structure, but I also like when things move and feel designed.
             </p>
             <p className={styles.paragraph}>
               I spend my time turning ideas into engineered experiences — fast backends in Rust, smooth interfaces in React Native. My work sits at the intersection of clarity and motion.
             </p>
             <p className={styles.paragraph}>
-              Right now, I'm focused on making the web feel intentional — every pixel, every line, every frame.
+              Right now, I&apos;m focused on making the web feel intentional — every pixel, every line, every frame.
             </p>
           </div>
         </div>

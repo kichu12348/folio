@@ -14,12 +14,7 @@ export default function Hero() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // --- LOAD ANIMATION (The "Architectural" Build) ---
       const loadTimeline = gsap.timeline({ defaults: { ease: "power3.out" } });
-
-      // 1. Intro baseline states (no grid)
-
-      // 2. Name reveal - slide in from left
       gsap.set(nameRef.current, { x: -100, opacity: 0 });
       loadTimeline.to(
         nameRef.current,
@@ -30,8 +25,6 @@ export default function Hero() {
         },
         0.3
       );
-
-      // 3. Title reveal - slide in from left
         gsap.set(titleRef.current, { x: -80, opacity: 0 });
       loadTimeline.to(
         titleRef.current,
@@ -54,7 +47,6 @@ export default function Hero() {
         0.6
       );
 
-      // Title (background - moves fastest)
       gsap.to(titleRef.current, {
         y: 200,
         ease: "none",
@@ -66,7 +58,6 @@ export default function Hero() {
         },
       });
 
-      // Name (mid-ground)
       gsap.to(nameRef.current, {
         y: 150,
         ease: "none",
@@ -77,8 +68,7 @@ export default function Hero() {
           scrub: 1,
         },
       });
-
-      // Image (foreground - moves slowest)
+      
       gsap.to(imageContainerRef.current, {
         y: 80,
         ease: "none",
