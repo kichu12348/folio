@@ -1,0 +1,114 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.aboutSection {
+  min-height: 100vh;
+  padding: 8rem 0;
+  display: flex;
+  align-items: center;
+}
+
+.frameContainer {
+  position: relative;
+  padding: 4rem 3rem;
+  min-height: 200px;
+}
+
+/* Top-left L-shaped corner tick */
+.topLeft {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: filter;
+}
+
+.topLeftHorizontal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--text-primary), rgba(255, 255, 255, 0.6));
+  width: 0; /* Animated by GSAP */
+  opacity: 0; /* Animated by GSAP */
+}
+
+.topLeftVertical {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  background: linear-gradient(180deg, var(--text-primary), rgba(255, 255, 255, 0.6));
+  height: 0; /* Animated by GSAP */
+  opacity: 0; /* Animated by GSAP */
+}
+
+/* Bottom-right L-shaped corner tick */
+.bottomRight {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  will-change: filter;
+}
+
+.bottomRightHorizontal {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(270deg, var(--text-primary), rgba(255, 255, 255, 0.6));
+  width: 0; /* Animated by GSAP */
+  opacity: 0; /* Animated by GSAP */
+}
+
+.bottomRightVertical {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 1px;
+  background: linear-gradient(0deg, var(--text-primary), rgba(255, 255, 255, 0.6));
+  height: 0; /* Animated by GSAP */
+  opacity: 0; /* Animated by GSAP */
+}
+
+/* Paragraph */
+.paragraph {
+  font-size: clamp(1.25rem, 2.5vw, 2rem);
+  font-weight: 300;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  margin: 0;
+  margin-bottom: 1.5rem; /* Add space between paragraphs */
+}
+
+.paragraph:last-child {
+  margin-bottom: 0;
+}
+
+/* Individual words */
+.word {
+  opacity: 0.2; /* Default low opacity, animated by GSAP */
+  display: inline-block;
+  will-change: opacity;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1.5rem;
+  }
+
+  .aboutSection {
+    padding: 4rem 0;
+  }
+
+  .frameContainer {
+    padding: 3rem 2rem;
+  }
+
+  .paragraph {
+    font-size: clamp(1.25rem, 4vw, 1.5rem);
+  }
+}
