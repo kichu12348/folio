@@ -1,11 +1,10 @@
 import React, { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { TextPlugin } from "gsap/TextPlugin";
 import styles from "./Skills.module.css";
 
 // Register GSAP plugins
-gsap.registerPlugin(ScrollTrigger, TextPlugin);
+gsap.registerPlugin(ScrollTrigger);
 
 // --- Types ---
 interface Skill {
@@ -22,7 +21,7 @@ interface SkillsData {
   languages: SkillCategory;
   frameworks: SkillCategory;
   tools: SkillCategory;
-  [key: string]: SkillCategory; // Index signature
+  [key: string]: SkillCategory;
 }
 
 // --- Data ---
@@ -82,235 +81,138 @@ const skillsData: SkillsData = {
   },
 };
 
-// --- Component ---
 const Skills: React.FC = () => {
-  const sectionRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const timelineRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Store listeners for cleanup
-    const listeners: { el: HTMLElement; type: string; fn: EventListener }[] =
-      [];
-
-    // Use GSAP context for safe cleanup
     const ctx = gsap.context(() => {
-      // Section header animation
-      gsap.fromTo(
-        `.${styles.sectionHeader}`,
-        { opacity: 0, x: -100 },
-        {
+      const timeline = timelineRef.current;
+      if (!timeline) return;
+
+      // 1. The Main Beam Animation
+      // The beam grows from top to bottom as we scroll through the section
+      gsap.to(`.${styles.timelineBeam}`, {
+        height: "100%",
+        ease: "none",
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top center", // Start when top of section hits center of viewport
+          end: "bottom center", // End when bottom of section hits center
+          scrub: 0.5,
+        },
+      });
+
+      // 2. Category Activations
+      const categories = gsap.utils.toArray<HTMLElement>(`.${styles.categoryWrapper}`);
+      
+      categories.forEach((cat) => {
+        const node = cat.querySelector(`.${styles.timelineNode}`);
+        const content = cat.querySelector(`.${styles.categoryContent}`);
+        const connector = cat.querySelector(`.${styles.connector}`);
+        const title = cat.querySelector(`.${styles.categoryTitle}`);
+        const skills = cat.querySelectorAll(`.${styles.skillTag}`);
+
+        // Create a timeline for each category that plays when the beam reaches it
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: cat,
+            start: "top 55%", // Trigger slightly after the beam passes the node position
+            end: "bottom 55%",
+            toggleActions: "play none play reverse",
+          }
+        });
+
+        // Node "pop"
+        tl.to(node, {
+          scale: 1.5,
+          borderColor: "var(--accent-white)",
+          boxShadow: "0 0 20px var(--accent-glow)",
+          duration: 0.3,
+          ease: "back.out(1.7)"
+        })
+        // Connector extends
+        .to(connector, {
+          scaleX: 1,
           opacity: 1,
-          x: 0,
-          ease: "none",
-          scrollTrigger: {
-            trigger: `.${styles.sectionHeader}`,
-            start: "top 80%",
-            end: "top 40%",
-            scrub: 1,
-          },
-        }
-      );
+          duration: 0.4,
+          ease: "power2.out"
+        }, "-=0.1")
+        // Content fade in
+        .fromTo([title, content], {
+          opacity: 0,
+          y: 20
+        }, {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          stagger: 0.1
+        }, "-=0.2")
+        // Skills stagger in
+        .fromTo(skills, {
+          opacity: 0,
+          scale: 0.8,
+          y: 10
+        }, {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          duration: 0.3,
+          stagger: 0.03,
+          ease: "back.out(1.2)"
+        }, "-=0.3");
 
-      // Section header line animation
-      gsap.fromTo(
-        `.${styles.sectionHeader} .${styles.line}`,
-        { width: 0 },
-        {
-          width: "60px",
-          ease: "none",
-          scrollTrigger: {
-            trigger: `.${styles.sectionHeader}`,
-            start: "top 75%",
-            end: "top 45%",
-            scrub: 1.5,
-          },
-        }
-      );
-
-      // Category titles animation
-      gsap.utils
-        .toArray<HTMLElement>(`.${styles.categoryTitle}`)
-        .forEach((title) => {
-          gsap.fromTo(
-            title,
-            { opacity: 0, x: -80, letterSpacing: "0.5em" },
-            {
-              opacity: 1,
-              x: 0,
-              letterSpacing: "0.15em",
-              ease: "none",
-              scrollTrigger: {
-                trigger: title,
-                start: "top 85%",
-                end: "top 50%",
-                scrub: 1,
-              },
-            }
-          );
-        });
-
-      // Skill name typing animation
-      gsap.utils.toArray<HTMLElement>(`.${styles.skillName}`).forEach((el) => {
-        const full = el.dataset.full || "";
-        gsap.to(el, {
-          text: { value: full },
-          ease: "none",
-          scrollTrigger: {
-            trigger: el.closest(`.${styles.skillItem}`),
-            start: "top 90%",
-            end: "top 40%",
-            scrub: 0.7,
-          },
-        });
       });
 
-      // Skill items reveal animation
-      gsap.utils
-        .toArray<HTMLElement>(`.${styles.skillCategory}`)
-        .forEach((category) => {
-          const items = category.querySelectorAll<HTMLElement>(
-            `.${styles.skillItem}`
-          );
+    }, sectionRef);
 
-          items.forEach((item) => {
-            const tl = gsap.timeline({
-              scrollTrigger: {
-                trigger: item,
-                start: "top 85%",
-                end: "top 35%",
-                scrub: 0.5,
-              },
-            });
-
-            // Set initial states
-            gsap.set(item, { opacity: 0, y: 30 });
-            gsap.set(item.querySelector(`.${styles.skillIcon}`), {
-              scale: 0,
-              opacity: 0,
-            });
-            gsap.set(item.querySelector(`.${styles.skillName}`), {
-              opacity: 0,
-              x: -20,
-            });
-            gsap.set(item.querySelector(`.${styles.skillStatus}`), {
-              opacity: 0,
-              x: 20,
-            });
-
-            // Animate in
-            tl.to(item, { opacity: 1, y: 0, duration: 1 }, 0)
-              .to(
-                item.querySelector(`.${styles.skillIcon}`),
-                { scale: 1, opacity: 1, duration: 0.4 },
-                0.1
-              )
-              .to(
-                item.querySelector(`.${styles.skillName}`),
-                { opacity: 1, x: 0, duration: 0.6 },
-                0.2
-              )
-              .to(
-                item.querySelector(`.${styles.skillStatus}`),
-                { opacity: 1, x: 0, duration: 0.4 },
-                0.3
-              );
-          });
-        });
-
-      // Enhanced hover effects
-      gsap.utils
-        .toArray<HTMLElement>(`.${styles.skillItem}`)
-        .forEach((item) => {
-          const icon = item.querySelector<HTMLElement>(`.${styles.skillIcon}`);
-          const name = item.querySelector<HTMLElement>(`.${styles.skillName}`);
-
-          const enterFn = () => {
-            gsap.to(icon, { scale: 1.4, duration: 0.4, ease: "power2.out" });
-            gsap.to(name, { x: 4, duration: 0.4, ease: "power2.out" });
-          };
-          const leaveFn = () => {
-            gsap.to(icon, { scale: 1, duration: 0.4, ease: "power2.out" });
-            gsap.to(name, { x: 0, duration: 0.4, ease: "power2.out" });
-          };
-
-          item.addEventListener("mouseenter", enterFn);
-          item.addEventListener("mouseleave", leaveFn);
-
-          // Store listeners for cleanup
-          listeners.push({
-            el: item,
-            type: "mouseenter",
-            fn: enterFn as EventListener,
-          });
-          listeners.push({
-            el: item,
-            type: "mouseleave",
-            fn: leaveFn as EventListener,
-          });
-        });
-
-      // Border bottom animation
-      gsap.utils
-        .toArray<HTMLElement>(`.${styles.skillItem}`)
-        .forEach((item) => {
-          ScrollTrigger.create({
-            trigger: item,
-            start: "top 75%",
-            end: "top 40%",
-            scrub: 0.3,
-            onUpdate: (self) => {
-              item.style.borderBottomColor = `rgba(255, 255, 255, ${
-                0.03 + self.progress * 0.04
-              })`;
-            },
-          });
-        });
-
-    }, sectionRef); // Scope animations to the component
-
-    // Cleanup function
-    return () => {
-      ctx.revert();
-
-      listeners.forEach((listener) => {
-        listener.el.removeEventListener(listener.type, listener.fn);
-      });
-    };
-  }, []); 
+    return () => ctx.revert();
+  }, []);
 
   return (
     <section className={styles.skillsSection} ref={sectionRef}>
       <div className={styles.container}>
-        <div className={styles.sectionHeader}>
-          <h2>Stuff I Know</h2>
-          <div className={styles.line}></div>
+        
+        {/* Central Timeline Track */}
+        <div className={styles.timelineContainer} ref={timelineRef}>
+          <div className={styles.startDot}></div>
+          <div className={styles.trackLine}></div>
+          <div className={styles.timelineBeam}>
+            <div className={styles.beamTip}></div>
+          </div>
+          <div className={styles.endDot}></div>
         </div>
 
-        {Object.keys(skillsData).map((categoryKey) => {
-          const category = skillsData[categoryKey];
-          return (
-            <div
-              key={categoryKey}
-              className={styles.skillCategory}
-              data-category={categoryKey}
+        {/* Categories */}
+        <div className={styles.categoriesContainer}>
+          {Object.entries(skillsData).map(([key, category], index) => (
+            <div 
+              key={key} 
+              className={`${styles.categoryWrapper} ${index % 2 === 0 ? styles.left : styles.right}`}
             >
-              <div className={styles.categoryTitle}>{category.title}</div>
-              <div className={styles.skillsList}>
-                {category.skills.map((skill) => (
-                  <div key={skill.name} className={styles.skillItem}>
-                    <div className={styles.skillContent}>
-                      <div className={styles.skillIcon}></div>
-                      <div
-                        className={styles.skillName}
-                        data-full={skill.name}
-                      ></div>
+              {/* The Node on the timeline */}
+              <div className={styles.timelineNode}></div>
+              
+              {/* The Connector Line */}
+              <div className={styles.connector}></div>
+
+              {/* The Content */}
+              <div className={styles.categoryContent}>
+                <h3 className={styles.categoryTitle}>{category.title}</h3>
+                <div className={styles.skillsGrid}>
+                  {category.skills.map((skill) => (
+                    <div key={skill.name} className={styles.skillTag}>
+                      <span className={styles.skillName}>{skill.name}</span>
+                      {/* Optional: Status dot or text */}
+                      {/* <span className={styles.skillStatusDot} data-status={skill.status}></span> */}
                     </div>
-                    <div className={styles.skillStatus}>{skill.status}</div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
-          );
-        })}
+          ))}
+        </div>
+
       </div>
     </section>
   );

@@ -1,151 +1,313 @@
+.skillsSection {
+  position: relative;
+  min-height: 150vh;
+  padding: 10rem 0;
+  overflow: hidden;
+  background-color: var(--bg-primary);
+}
+
+/* Ambient Background Glow */
+.skillsSection::before {
+  content: '';
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 60%;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.03) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem;
+  position: relative;
+  height: 100%;
+  z-index: 1;
 }
 
-.skillsSection {
-  min-height: 100vh;
-  padding: 0;
+/* --- Timeline Core --- */
+.timelineContainer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 100%;
+  z-index: 10;
 }
 
-.sectionHeader {
-  margin-bottom: 8rem;
-  opacity: 0; /* Set by GSAP */
+.trackLine {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--timeline-bg);
+  opacity: 0.3;
 }
 
-.sectionHeader h2 {
-  font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  margin-bottom: 1rem;
+.timelineBeam {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0%; /* Animated by GSAP */
+  background: linear-gradient(to bottom, transparent 0%, var(--accent-glow) 50%, var(--accent-white) 100%);
+  box-shadow: 0 0 15px var(--accent-glow);
+  z-index: 2;
 }
 
-.sectionHeader .line {
-  /* Width is controlled by GSAP */
-  height: 2px;
-  background: #fff;
-  margin-top: 1.5rem;
+.beamTip {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 40px;
+  background: var(--accent-white);
+  border-radius: 4px;
+  box-shadow: 
+    0 0 20px var(--accent-white), 
+    0 0 40px var(--accent-glow),
+    0 0 60px var(--accent-glow);
+  filter: blur(1px);
 }
 
-.skillCategory {
-  margin-bottom: 6rem;
+.startDot, .endDot {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 16px;
+  background: var(--bg-primary);
+  border: 2px solid var(--accent-white);
+  border-radius: 50%;
+  box-shadow: 0 0 20px var(--accent-glow);
+  z-index: 20;
+}
+
+.startDot::after, .endDot::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: 6px;
+  background: var(--accent-white);
+  border-radius: 50%;
+}
+
+.startDot { top: 0; }
+.endDot { bottom: 0; }
+
+/* --- Categories Layout --- */
+.categoriesContainer {
+  position: relative;
+  width: 100%;
+  padding: 4rem 0;
+}
+
+.categoryWrapper {
+  position: relative;
+  width: 50%;
+  margin-bottom: 12rem;
+  display: flex;
+  align-items: center;
+}
+
+/* Alternating Sides */
+.left {
+  left: 0;
+  padding-right: 5rem;
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.right {
+  left: 50%;
+  padding-left: 5rem;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+/* --- Nodes & Connectors --- */
+.timelineNode {
+  position: absolute;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  background: var(--bg-primary);
+  border: 2px solid var(--timeline-marker);
+  border-radius: 50%;
+  z-index: 15;
+  transform: translateY(-50%) scale(1);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.timelineNode::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  width: 8px;
+  height: 8px;
+  background: var(--accent-white);
+  border-radius: 50%;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Active state for node (can be toggled by class or GSAP) */
+.categoryWrapper:hover .timelineNode,
+.timelineNode.active {
+  border-color: var(--accent-white);
+  box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.categoryWrapper:hover .timelineNode::after,
+.timelineNode.active::after {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.left .timelineNode { right: -10px; }
+.right .timelineNode { left: -10px; }
+
+.connector {
+  position: absolute;
+  top: 50%;
+  height: 1px;
+  width: 4rem;
+  background: linear-gradient(90deg, var(--accent-white), transparent);
+  transform-origin: left center;
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.left .connector {
+  right: 0;
+  transform-origin: right center;
+  background: linear-gradient(-90deg, var(--accent-white), transparent);
+}
+
+.right .connector { left: 0; }
+
+/* --- Content Styling --- */
+.categoryContent {
+  opacity: 0;
 }
 
 .categoryTitle {
-  font-size: clamp(0.875rem, 1.5vw, 1rem);
-  font-weight: 500;
-  letter-spacing: 0.15em; /* Will be animated by GSAP */
-  text-transform: uppercase;
-  color: #666;
+  font-family: var(--font-primary);
+  font-size: 3rem;
+  font-weight: 700;
   margin-bottom: 2rem;
-  opacity: 0; /* Set by GSAP */
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+  text-shadow: 0 0 30px rgba(255,255,255,0.1);
 }
 
-.skillsList {
+.skillsGrid {
   display: flex;
-  flex-direction: column;
-  gap: 0;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  max-width: 450px;
 }
 
-.skillItem {
-  padding: 2rem 0;
-  border-bottom: 1px solid var(--border-primary);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+.left .skillsGrid { justify-content: flex-end; }
+
+/* Futuristic Chip Style */
+.skillTag {
   position: relative;
+  padding: 0.6rem 1.2rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-primary);
+  border-radius: 4px; /* Techy corners */
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  cursor: default;
   overflow: hidden;
-  /* Opacity and transform set by GSAP */
+  backdrop-filter: blur(5px);
 }
 
-.skillItem::before {
+.skillTag::before {
   content: '';
   position: absolute;
-  left: 0;
   top: 0;
-  width: 0;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    var(--gradient-hover-start) 0%,
-    var(--gradient-hover-end) 100%
-  );
-  transition: width 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
-}
-
-.skillItem:hover::before {
+  left: 0;
   width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.05), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.6s;
 }
 
-.skillItem:hover {
-  border-bottom-color: var(--border-hover);
-  transform: translateX(8px); /* This will be overridden by GSAP hover */
+.skillTag:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--accent-white);
+  color: var(--text-primary);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 5px 20px rgba(0,0,0,0.5), 0 0 10px var(--accent-glow);
 }
 
-.skillContent {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
+.skillTag:hover::before {
+  transform: translateX(100%);
 }
-
-.skillIcon {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--text-subtle);
-  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-  /* Scale set by GSAP */
-}
-
 
 .skillName {
-  font-size: clamp(1.25rem, 2.5vw, 2rem);
-  font-weight: 400;
-  letter-spacing: -0.01em;
-  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
   position: relative;
-  /* Opacity and transform set by GSAP */
-  /* Text content set by GSAP TextPlugin */
-  min-height: 2rem; /* Ensure space for text to animate in */
+  z-index: 1;
+  font-weight: 500;
+  letter-spacing: 0.02em;
 }
 
-
-.skillStatus {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  font-weight: 300;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-  /* Opacity and transform set by GSAP */
-}
-
-.skillItem:hover .skillStatus {
-  color: var(--text-secondary);
-}
-
+/* --- Mobile Responsiveness --- */
 @media (max-width: 768px) {
-  .container {
-    padding: 0 1.5rem;
+  .timelineContainer {
+    left: 1.5rem;
+    transform: none;
   }
 
-
-  .sectionHeader {
-    margin-bottom: 4rem;
+  .categoryWrapper {
+    width: 100%;
+    left: 0 !important;
+    padding-left: 4rem;
+    padding-right: 1.5rem;
+    justify-content: flex-start;
+    text-align: left;
+    margin-bottom: 6rem;
   }
 
-  .skillCategory {
-    margin-bottom: 4rem;
+  .left .timelineNode, .right .timelineNode {
+    left: 1.5rem;
+    right: auto;
+    transform: translate(-50%, -50%);
   }
 
-  .skillItem {
-    padding: 1rem 0;
+  .left .connector, .right .connector {
+    left: 2rem;
+    right: auto;
+    width: 2rem;
+    transform-origin: left center;
+    background: linear-gradient(90deg, var(--accent-white), transparent);
   }
 
-  .skillItem:hover {
-    padding-left: 0.5rem;
+  .left .skillsGrid {
+    justify-content: flex-start;
+  }
+  
+  .categoryTitle {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .skillTag {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
   }
 }
